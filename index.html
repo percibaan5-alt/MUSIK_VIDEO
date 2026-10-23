@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koleksi Video Musik - YukiChii</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0b1329;
+            color: #f1f5f9;
+            padding: 15px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        
+        /* Header Biru YukiChii */
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #3b82f6;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+        }
+        @media(min-width: 768px) {
+            header { padding: 25px 30px; }
+        }
+        h1 {
+            font-size: 22px;
+            color: #ffffff;
+        }
+        p.subtitle {
+            font-size: 13px;
+            color: #93c5fd;
+        }
+        
+        /* Filter & Search Bar */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        @media(min-width: 768px) {
+            .controls {
+                flex-direction: row;
+                justify-content: space-between;
+            }
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 14px;
+            background: #111827;
+            border: 1px solid #1e3a8a;
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        .search-box {
+            flex: 1;
+            max-width: 100%;
+        }
+        @media(min-width: 768px) {
+            .search-box { max-width: 400px; }
+        }
+        
+        .categories {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        .cat-btn {
+            background: #111827;
+            border: 1px solid #1e3a8a;
+            color: #93c5fd;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .cat-btn.active {
+            background: #2563eb;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Grid Video Responsif HP */
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        @media(min-width: 540px) {
+            .video-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media(min-width: 900px) {
+            .video-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .video-card {
+            background: #111827;
+            border: 1px solid #1e3a8a;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .video-card:hover {
+            transform: translateY(-3px);
+            border-color: #3b82f6;
+        }
+        .thumb-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+            cursor: pointer;
+        }
+        .thumb-container img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .play-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .play-icon {
+            width: 46px; height: 46px;
+            background: #2563eb;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        .card-body {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+        .card-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+        .card-title:hover { color: #60a5fa; }
+        .card-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 12px;
+            flex-grow: 1;
+        }
+        .card-footer {
+            border-top: 1px solid #1f2937;
+            padding-top: 10px;
+            font-size: 11px;
+            color: #64748b;
+        }
+        .badge {
+            background: #172554;
+            color: #93c5fd;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid #1e3a8a;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        /* Modal Player */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 10px;
+            display: none;
+        }
+        .modal-content {
+            background: #111827;
+            border: 1px solid #3b82f6;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        .modal-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #172554;
+            border-bottom: 1px solid #1f2937;
+        }
+        .close-btn {
+            background: #2563eb;
+            border: none;
+            color: white;
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+        }
+        .player-wrapper iframe, .player-wrapper video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+        .modal-footer {
+            padding: 12px 16px;
+            font-size: 12px;
+            color: #94a3b8;
+            background: #0b1329;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            font-size: 12px;
+            color: #64748b;
+            border-top: 1px solid #1f2937;
+        }
+        footer span { color: #60a5fa; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🎵 Koleksi Video Musik</h1>
+            <p class="subtitle">Kurasi Musik Eksklusif oleh <strong>YukiChii</strong> — Putar dan nikmati lagu wkwkwkwkwk -_-.</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" oninput="renderVideos()" placeholder="Cari lagu atau nama penyanyi...">
+            </div>
+            <div class="categories">
+                <button class="cat-btn active" onclick="filterCat('All', this)">Semua Kategori</button>
+                <button class="cat-btn" onclick="filterCat('English Songs', this)">English Songs</button>
+                <button class="cat-btn" onclick="filterCat('Russian Songs', this)">Russian Songs</button>
+                <button class="cat-btn" onclick="filterCat('Anime OST', this)">Anime OST</button>
+            </div>
+        </div>
+
+        <div id="videoGrid" class="video-grid"></div>
+
+        <footer>
+            &copy; 2026 Portal Musik Eksklusif • Didesain oleh <span>YukiChii</span>
+        </footer>
+    </div>
+
+    <!-- Modal Player -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div id="playerModalTitle" style="color: white; font-weight: bold; font-size: 15px;">Judul Video Musik</div>
+                <button class="close-btn" onclick="closePlayerModal()">✕</button>
+            </div>
+            <div class="player-wrapper" id="playerContainer"></div>
+            <div class="modal-footer" id="playerModalDesc">Keterangan</div>
+        </div>
+    </div>
+
+    <script>
+        // =========================================================
+        // DAFTAR VIDEO MUSIK YUKICHII (TAMBAHKAN LAGU DI SINI)
+        // =========================================================
+        const videoList = [
+            {
+                id: 1,
+                title: "Russian Speed Up Playlist - Nightcore Mix",
+                url: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+                category: "Russian Songs",
+                description: "Kumpulan lagu Rusia tempo cepat pilihan terbaik.",
+                date: "2026-10-23"
+            },
+            {
+                id: 2,
+                title: "Lofi Chill & Anime OST Mix",
+                url: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+                category: "Anime OST",
+                description: "Muzik santai bernuansa anime favorit YukiChii.",
+                date: "2026-10-23"
+            },
+            {
+                id: 3,
+                title: "Top English Pop Hits 2026",
+                url: "https://www.youtube.com/watch?v=jfKfPfyJRdk",
+                category: "English Songs",
+                description: "Daftar lagu pop Barat terpopuler.",
+                date: "2026-10-23"
+            }
+        ];
+
+        let currentCategory = 'All';
+
+        window.onload = function() {
+            renderVideos();
+        };
+
+        function parseVideoUrl(url) {
+            let videoId = '';
+            if (url.includes('youtube.com/watch?v=')) {
+                videoId = url.split('v=')[1];
+                const amp = videoId.indexOf('&');
+                if (amp !== -1) videoId = videoId.substring(0, amp);
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1];
+                const q = videoId.indexOf('?');
+                if (q !== -1) videoId = videoId.substring(0, q);
+            }
+
+            if (videoId && videoId.length >= 10) {
+                return {
+                    type: 'youtube',
+                    embedUrl: 'https://www.youtube.com/embed/' + videoId + '?autoplay=1',
+                    thumbUrl: 'https://img.youtube.com/vi/' + videoId + '/hqdefault.jpg'
+                };
+            }
+            return {
+                type: 'mp4',
+                embedUrl: url,
+                thumbUrl: 'https://placehold.co/600x400/111827/ffffff?text=Video+Musik'
+            };
+        }
+
+        function renderVideos() {
+            const grid = document.getElementById('videoGrid');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = videoList.filter(v => {
+                const matchCat = currentCategory === 'All' || v.category === currentCategory;
+                const matchSearch = v.title.toLowerCase().includes(searchVal) || v.description.toLowerCase().includes(searchVal);
+                return matchCat && matchSearch;
+            });
+
+            grid.innerHTML = '';
+
+            filtered.forEach(video => {
+                const parsed = parseVideoUrl(video.url);
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="thumb-container" onclick="openPlayerModal(${video.id})">
+                        <img src="${parsed.thumbUrl}" alt="${video.title}">
+                        <div class="play-overlay">
+                            <div class="play-icon">▶</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div><span class="badge">${video.category}</span></div>
+                        <div class="card-title" onclick="openPlayerModal(${video.id})">${video.title}</div>
+                        <div class="card-desc">${video.description}</div>
+                        <div class="card-footer">${video.date}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCat(cat, btnElement) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderVideos();
+        }
+
+        function openPlayerModal(id) {
+            const video = videoList.find(v => v.id === id);
+            if (!video) return;
+
+            const modal = document.getElementById('playerModal');
+            const container = document.getElementById('playerContainer');
+            document.getElementById('playerModalTitle').innerText = video.title;
+            document.getElementById('playerModalDesc').innerText = video.description;
+
+            const parsed = parseVideoUrl(video.url);
+
+            if (parsed.type === 'youtube') {
+                container.innerHTML = `<iframe src="${parsed.embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } else {
+                container.innerHTML = `<video src="${parsed.embedUrl}" controls autoplay></video>`;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closePlayerModal() {
+            const modal = document.getElementById('playerModal');
+            document.getElementById('playerContainer').innerHTML = ''; 
+            modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
