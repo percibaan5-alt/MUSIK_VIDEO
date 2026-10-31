@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YukiChii Cyber Vault</title>
+    <!-- Google Fonts: Plus Jakarta Sans & Outfit untuk kesan modern futuristik -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --bg-card: rgba(13, 20, 38, 0.75);
+            --neon-blue: #0ea5e9;
+            --neon-cyan: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-glow: rgba(56, 189, 248, 0.25);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(14, 165, 233, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(37, 99, 235, 0.12) 0%, transparent 40%);
+            color: var(--text-main);
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1160px;
+            margin: 0 auto;
+        }
+
+        /* ==========================================
+           1. CMATRIX OPENING / SPLASH SCREEN (DURASI LEBIH LAMA)
+           ========================================== */
+        #openingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #030712;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            overflow: hidden;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        /* Canvas background untuk Efek CMatrix */
+        #matrixCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.75;
+        }
+
+        .opening-box {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            max-width: 380px;
+            padding: 30px;
+            background: rgba(3, 7, 18, 0.75);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            border-radius: 28px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 0 50px rgba(14, 165, 233, 0.35);
+            animation: scaleUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .opening-emblem {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(37, 99, 235, 0.35));
+            border: 2px solid var(--neon-cyan);
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 35px rgba(56, 189, 248, 0.5);
+            animation: emblemPulse 2s infinite ease-in-out;
+        }
+
+        .opening-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.6);
+        }
+
+        .opening-tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--neon-cyan);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+        }
+
+        .loading-line {
+            width: 180px;
+            height: 4px;
+            background: rgba(30, 58, 138, 0.4);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #0284c7, #38bdf8, #60a5fa);
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--neon-cyan);
+            /* Loading bar berjalan selama 4.5 detik sesuai durasi opening */
+            animation: loadAnim 4.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+        }
+
+        @keyframes scaleUp {
+            0% { transform: scale(0.88); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes emblemPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.4); transform: translateY(0); }
+            50% { box-shadow: 0 0 45px rgba(56, 189, 248, 0.8); transform: translateY(-4px); }
+        }
+
+        @keyframes loadAnim {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+
+        .fade-out {
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* ==========================================
+           2. MODERN HEADER & NAVIGATION
+           ========================================== */
+        header {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 26px 32px;
+            border-radius: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+        }
+
+        @media(min-width: 768px) {
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .header-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title p.subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .owner-badge {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(37, 99, 235, 0.25));
+            border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan);
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            width: fit-content;
+        }
+
+        /* Controls: Search & Categories */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media(min-width: 768px) {
+            .controls {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 100%;
+        }
+
+        @media(min-width: 768px) {
+            .search-box { max-width: 400px; }
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 18px 14px 46px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-glow);
+            color: #ffffff;
+            border-radius: 16px;
+            font-size: 14px;
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-box input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            background: rgba(13, 20, 38, 0.95);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--neon-cyan);
+            font-size: 15px;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glow);
+            color: var(--text-muted);
+            padding: 11px 20px;
+            border-radius: 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+        }
+
+        .cat-btn:hover {
+            border-color: var(--neon-cyan);
+            color: #ffffff;
+            background: rgba(13, 20, 38, 0.95);
+        }
+
+        .cat-btn.active {
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            color: #ffffff;
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 18px rgba(14, 165, 233, 0.45);
+        }
+
+        /* ==========================================
+           3. ULTRA CLEAN & MODERN VIDEO GRID
+           ========================================== */
+        .video-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media(min-width: 640px) {
+            .video-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media(min-width: 1024px) {
+            .video-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .video-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-glow);
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(56, 189, 248, 0.6);
+            box-shadow: 0 20px 40px -10px rgba(56, 189, 248, 0.25);
+        }
+
+        .thumb-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #020617;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .thumb-container img {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .video-card:hover .thumb-container img {
+            transform: scale(1.08);
+        }
+
+        .play-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .video-card:hover .play-overlay {
+            background: rgba(3, 7, 18, 0.15);
+        }
+
+        .play-icon {
+            width: 52px; height: 52px;
+            background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .play-icon {
+            transform: scale(1.15);
+        }
+
+        .card-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .badge-wrapper {
+            margin-bottom: 12px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .badge {
+            background: rgba(14, 165, 233, 0.12);
+            color: var(--neon-cyan);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 8px;
+            cursor: pointer;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 42px;
+            max-height: 42px;
+        }
+
+        .card-title:hover { color: var(--neon-cyan); }
+
+        .card-desc {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 38px;
+            max-height: 38px;
+            margin-bottom: 16px;
+        }
+
+        .card-footer {
+            border-top: 1px solid rgba(30, 41, 59, 0.8);
+            padding-top: 14px;
+            font-size: 11.5px;
+            color: #64748b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .action-link {
+            color: var(--neon-cyan);
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: gap 0.2s;
+        }
+
+        .video-card:hover .action-link {
+            gap: 8px;
+        }
+
+        /* ==========================================
+           4. MODERN MODAL & FOOTER
+           ========================================== */
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.92);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+            display: none;
+        }
+
+        .modal-content {
+            background: #0b1329;
+            border: 1.5px solid var(--neon-cyan);
+            width: 100%;
+            max-width: 850px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(56, 189, 248, 0.4);
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(90deg, #1e3a8a 0%, #0b1329 100%);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 15px;
+        }
+
+        .close-btn {
+            background: #0284c7;
+            border: none;
+            color: white;
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover { background: #0369a1; }
+
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            background: #000;
+        }
+
+        .player-wrapper iframe, .player-wrapper video {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            border: none;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            font-size: 13px;
+            color: var(--text-muted);
+            background: #060a17;
+            line-height: 1.5;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 24px;
+            font-size: 12.5px;
+            color: #64748b;
+            border-top: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        footer span { 
+            color: var(--neon-cyan); 
+            font-weight: 700; 
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CMATRIX OPENING SCREEN -->
+    <div id="openingScreen">
+        <canvas id="matrixCanvas"></canvas>
+        <div class="opening-box">
+            <div class="opening-emblem">✨</div>
+            <div class="opening-title">YUKI CHII</div>
+            <div class="opening-tag">Cyber Vault v3.5</div>
+            <div class="loading-line">
+                <div class="loading-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <div class="header-title">
+                <h1>🎬 YukiChii Official Gallery</h1>
+                <p class="subtitle">Eksklusif media vault dengan estetika modern futuristik.</p>
+            </div>
+            <div class="owner-badge">⭐ Official Curator</div>
+        </header>
+
+        <!-- Control Bar -->
+        <div class="controls">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" oninput="renderVideos()" placeholder="Cari judul video atau lagu...">
+            </div>
+            <div class="categories">
+                <button class="cat-btn active" onclick="filterCat('All', this)">✨ Semua</button>
+                <button class="cat-btn" onclick="filterCat('English Songs', this)">🇬🇧 English Songs</button>
+                <button class="cat-btn" onclick="filterCat('Russian Songs', this)">🇷🇺 Russian Songs</button>
+                <button class="cat-btn" onclick="filterCat('Anime Songs', this)">🇯🇵 Anime Songs</button>
+                <button class="cat-btn" onclick="filterCat('Lainnya', this)">🎥 Lainnya</button>
+            </div>
+        </div>
+
+        <!-- Video Grid Modern -->
+        <div id="videoGrid" class="video-grid"></div>
+
+        <!-- Footer -->
+        <footer>
+            &copy; 2026 YukiChii Vault • Designed with CMatrix Cyber-Glass Theme
+        </footer>
+    </div>
+
+    <!-- Modal Pemutar Video -->
+    <div id="playerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div id="playerModalTitle" class="modal-title">Judul Video</div>
+                <button class="close-btn" onclick="closePlayerModal()">✕</button>
+            </div>
+            <div class="player-wrapper" id="playerContainer"></div>
+            <div class="modal-footer" id="playerModalDesc">Keterangan video</div>
+        </div>
+    </div>
+
+    <script>
+        // DAFTAR VIDEO EKSKLUSIF YUKICHII (TAMBAH/UBAH VIDEO DI SINI)
+        const videoList = [
+            {
+                id: 1,
+                title: "𝙈𝙀 𝙌𝙐𝙀𝘿𝙊 (𝙏𝙞𝙠𝙏𝙤𝙠 𝙑𝙚𝙧𝙨𝙞𝙤𝙣) | 𝙏𝙄𝙂𝙄 𝙏𝙄𝙂𝙄 𝘿𝘼 𝙏𝙍𝙀𝙉𝘿 𝙓 𝙈𝘼𝙆𝙄𝙈𝘼 𝙀𝘿𝙄𝙏",
+                url: "https://youtu.be/TGxhiD-vlqk",
+                category: "English Songs",
+                description: "Musik santai pilihan terbaik dengan editan visual modern yang keren.",
+                date: "2026-10-29"
+            },
+            {
+                id: 2,
+                title: "Руки вверх - А он тебя целует / speed song /",
+                url: "https://youtu.be/ZfZ6PUZwXUM",
+                category: "Russian Songs",
+                description: "Koleksi musik Rusia populer versi speed up ritme energik.",
+                date: "2026-10-29"
+            },
+            {
+                id: 3,
+                title: "заны препараты (Tiktok slowed version) Roxyedit",
+                url: "https://youtu.be/p1tJAyYxi8Y",
+                category: "Anime Songs",
+                description: "Kumpulan OST dan musik bertema anime edisi slowed vibe.",
+                date: "2026-10-29"
+            }
+        ];
+
+        let currentCategory = 'All';
+
+        // ==========================================
+        // CMATRIX EFFECT ANIMATION LOGIC
+        // ==========================================
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        let matrixInterval;
+
+        function initMatrix() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&* YukiChii';
+            const fontSize = 14;
+            const columns = Math.floor(canvas.width / fontSize);
+            const drops = Array(columns).fill(1);
+
+            function drawMatrix() {
+                // Efek Jejak Hitam Transparan
+                ctx.fillStyle = 'rgba(3, 7, 18, 0.08)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#38bdf8'; // Warna Teks Cyan Neon
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+
+                    ctx.fillText(text, x, y);
+
+                    if (y > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            matrixInterval = setInterval(drawMatrix, 33);
+        }
+
+        window.onload = function() {
+            initMatrix();
+            renderVideos();
+            
+            // HILANGKAN OPENING SCREEN SECARA HALUS SETELAH 4.5 DETIK (DURASI LEBIH LAMA)
+            setTimeout(function() {
+                const opening = document.getElementById('openingScreen');
+                if (opening) {
+                    opening.classList.add('fade-out');
+                    setTimeout(() => {
+                        clearInterval(matrixInterval); // Hentikan animasi canvas agar memori tetap ringan
+                    }, 1000);
+                }
+            }, 4500);
+        };
+
+        window.onresize = function() {
+            if (canvas) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        };
+
+        function parseVideoUrl(url) {
+            let videoId = '';
+            if (url.includes('youtube.com/watch?v=')) {
+                videoId = url.split('v=')[1];
+                const amp = videoId.indexOf('&');
+                if (amp !== -1) videoId = videoId.substring(0, amp);
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1];
+                const q = videoId.indexOf('?');
+                if (q !== -1) videoId = videoId.substring(0, q);
+            }
+
+            if (videoId && videoId.length >= 10) {
+                return {
+                    type: 'youtube',
+                    embedUrl: 'https://www.youtube.com/embed/' + videoId + '?autoplay=1',
+                    thumbUrl: 'https://img.youtube.com/vi/' + videoId + '/mqdefault.jpg'
+                };
+            }
+            return {
+                type: 'mp4',
+                embedUrl: url,
+                thumbUrl: 'https://placehold.co/600x400/0d1426/38bdf8?text=YukiChii+Vault'
+            };
+        }
+
+        function renderVideos() {
+            const grid = document.getElementById('videoGrid');
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = videoList.filter(v => {
+                const matchCat = currentCategory === 'All' || v.category === currentCategory;
+                const matchSearch = v.title.toLowerCase().includes(searchVal) || v.description.toLowerCase().includes(searchVal);
+                return matchCat && matchSearch;
+            });
+
+            grid.innerHTML = '';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div style="text-align:center; grid-column:1/-1; padding:50px; color:#64748b; font-size:14px;">Tidak ada video yang ditemukan.</div>';
+                return;
+            }
+
+            filtered.forEach(video => {
+                const parsed = parseVideoUrl(video.url);
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.innerHTML = `
+                    <div class="thumb-container" onclick="openPlayerModal(${video.id})">
+                        <img src="${parsed.thumbUrl}" alt="${video.title}" loading="lazy">
+                        <div class="play-overlay">
+                            <div class="play-icon">▶</div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="badge-wrapper">
+                            <span class="badge">${video.category}</span>
+                        </div>
+                        <div class="card-title" onclick="openPlayerModal(${video.id})">${video.title}</div>
+                        <div class="card-desc">${video.description}</div>
+                        <div class="card-footer">
+                            <span>📅 ${video.date}</span>
+                            <a href="#" class="action-link" onclick="openPlayerModal(${video.id}); return false;">Watch ➔</a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterCat(cat, btnElement) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btnElement.classList.add('active');
+            renderVideos();
+        }
+
+        function openPlayerModal(id) {
+            const video = videoList.find(v => v.id === id);
+            if (!video) return;
+
+            const modal = document.getElementById('playerModal');
+            const container = document.getElementById('playerContainer');
+            document.getElementById('playerModalTitle').innerText = video.title;
+            document.getElementById('playerModalDesc').innerText = video.description;
+
+            const parsed = parseVideoUrl(video.url);
+
+            if (parsed.type === 'youtube') {
+                container.innerHTML = `<iframe src="${parsed.embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } else {
+                container.innerHTML = `<video src="${parsed.embedUrl}" controls autoplay></video>`;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closePlayerModal() {
+            const modal = document.getElementById('playerModal');
+            document.getElementById('playerContainer').innerHTML = ''; 
+            modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
